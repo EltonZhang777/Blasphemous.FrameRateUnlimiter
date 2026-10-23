@@ -8,6 +8,7 @@ namespace Blasphemous.FrameRateUnlimiter;
 public class FrameRateUnlimiter : BlasMod
 {
     private FrameRateConfig _config = new();
+    private readonly FrameRatePolicyState _policy = new();
 
     internal FrameRateUnlimiter() : base(ModInfo.MOD_ID, ModInfo.MOD_NAME, ModInfo.MOD_AUTHOR, ModInfo.MOD_VERSION) { }
 
@@ -24,14 +25,31 @@ public class FrameRateUnlimiter : BlasMod
             return;
         }
 
-        var result = FrameRatePolicy.Resolve(_config, null, QualitySettings.vSyncCount);
+        var result = _policy.Resolve(_config, null, QualitySettings.vSyncCount);
         if (result.Warning != null)
         {
             ModLog.Warn(result.Warning, this);
             _config = new FrameRateConfig();
+            _policy.Resolve(_config, null, QualitySettings.vSyncCount);
+            return;
+        }
+
+        if (result.ConfigurationWasNormalized)
+        {
+            try
+            {
+                ConfigHandler.Save(_config);
+            }
+            catch (System.Exception exception)
+            {
+                ModLog.Warn($"Unable to save corrected frame-rate configuration. {exception.Message}", this);
+            }
         }
     }
 
     internal int ResolveTargetFrameRate(int vSyncCount) =>
-        FrameRatePolicy.Resolve(_config, null, vSyncCount).TargetFrameRate;
+        _policy.Resolve(_config, null, vSyncCount).TargetFrameRate;
+
+    internal int ObserveFrame(float unscaledDeltaTime, int vSyncCount) =>
+        _policy.ObserveFrame(_config, unscaledDeltaTime, vSyncCount).TargetFrameRate;
 }

@@ -14,4 +14,14 @@ public sealed class FrameRateConfig
     /// Gets or sets the requested frame rate in frames per second.
     /// </summary>
     public int TargetFrameRate { get; set; } = 60;
+
+    /// <summary>
+    /// Gets or sets the lowest requested target in Variable mode. This is not a guarantee of actual FPS.
+    /// </summary>
+    public int LowFrameRate { get; set; } = 30;
+
+    /// <summary>
+    /// Gets or sets the highest requested target in Variable mode.
+    /// </summary>
+    public int HighFrameRate { get; set; } = 120;
 }

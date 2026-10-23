@@ -10,6 +10,10 @@ internal static class FpsLimiterTarget
     internal static int Resolve() => Main.FrameRateUnlimiter == null
         ? FrameRatePolicy.DefaultTargetFrameRate
         : Main.FrameRateUnlimiter.ResolveTargetFrameRate(QualitySettings.vSyncCount);
+
+    internal static int ObserveFrame(float unscaledDeltaTime) => Main.FrameRateUnlimiter == null
+        ? FrameRatePolicy.DefaultTargetFrameRate
+        : Main.FrameRateUnlimiter.ObserveFrame(unscaledDeltaTime, QualitySettings.vSyncCount);
 }
 
 [HarmonyPatch(typeof(FpsLimiter), "UpdateTargetDeltaTime")]
@@ -38,7 +42,7 @@ internal static class FpsLimiter_LateUpdate_Patch
 {
     private static void Prefix(FpsLimiter __instance, ref float ___TargetDeltaTime)
     {
-        var targetFrameRate = FpsLimiterTarget.Resolve();
+        var targetFrameRate = FpsLimiterTarget.ObserveFrame(Time.unscaledDeltaTime);
         __instance.TargetFrameRate = targetFrameRate;
 
         if (QualitySettings.vSyncCount > 0)
