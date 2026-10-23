@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="Blasphemous.FrameRateUnlimiter/Blasphemous.FrameRateUnlimiter.csproj" />
+  <Project Path="Blasphemous.FrameRateUnlimiter.Tests/Blasphemous.FrameRateUnlimiter.Tests.csproj" />
 </Solution>

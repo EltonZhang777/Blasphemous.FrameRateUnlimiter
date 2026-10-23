@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk" TreatAsLocalProperty="TargetName;DefaultPublishFolder;PublishFolderWasSpecified;PublishZipOverwrite">
 
   <PropertyGroup>
     <TargetFramework>net35</TargetFramework>
@@ -21,7 +21,7 @@
 
   <ItemGroup>
     <PackageReference Include="Blasphemous.GameLibs" Version="4.0.67" />
-    <PackageReference Include="Blasphemous.ModdingAPI" Version="0.1.0" />
+    <PackageReference Include="Blasphemous.ModdingAPI" Version="3.0.1" />
   </ItemGroup>
 
   <Target Name="Development" AfterTargets="PostBuildEvent">
@@ -34,19 +34,27 @@
 
     <!-- Get export directories -->
     <PropertyGroup>
-      <DevFolder>C:\Program Files (x86)\Steam\steamapps\common\Blasphemous\Modding\</DevFolder>
-      <PublishFolder>$(SolutionDir)\publish\$(TargetName)</PublishFolder>
+      <DevFolder Condition="'$(DevFolder)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Blasphemous\Modding\</DevFolder>
+      <PublishFolderWasSpecified Condition="'$(PublishFolder)' != ''">true</PublishFolderWasSpecified>
+      <PublishFolderWasSpecified Condition="'$(PublishFolder)' == ''">false</PublishFolderWasSpecified>
+      <DefaultPublishFolder>$(MSBuildProjectDirectory)\..\publish\$(TargetName)</DefaultPublishFolder>
+      <PublishFolder Condition="'$(PublishFolder)' == ''">$(DefaultPublishFolder)</PublishFolder>
+      <PublishZipOverwrite Condition="'$(PublishFolderWasSpecified)' == 'true'">false</PublishZipOverwrite>
+      <PublishZipOverwrite Condition="'$(PublishFolderWasSpecified)' != 'true'">true</PublishZipOverwrite>
     </PropertyGroup>
+
+    <Error Condition="'$(PublishFolderWasSpecified)' == 'true' and Exists('$(PublishFolder)')" Text="Custom PublishFolder must be a new directory." />
+    <Error Condition="'$(PublishFolderWasSpecified)' == 'true' and Exists('$(PublishFolder)\..\$(TargetName).zip')" Text="Custom ZIP destination already exists; choose a fresh parent directory." />
 
     <!-- Export to dev folder -->
     <Copy SourceFiles="@(Resources)" DestinationFolder="$(DevFolder)\%(RecursiveDir)" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(PluginDll)" DestinationFolder="$(DevFolder)\plugins" SkipUnchangedFiles="true" />
 
     <!-- Export to publish folder -->
-    <RemoveDir Directories="$(PublishFolder)" />
+    <RemoveDir Directories="$(PublishFolder)" Condition="'$(PublishFolderWasSpecified)' != 'true'" />
     <Copy SourceFiles="@(Resources)" DestinationFolder="$(PublishFolder)\%(RecursiveDir)" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(PluginDll)" DestinationFolder="$(PublishFolder)\plugins" SkipUnchangedFiles="true" />
-    <ZipDirectory SourceDirectory="$(PublishFolder)" DestinationFile="$(PublishFolder)\..\$(TargetName).zip" Overwrite="true" />
+    <ZipDirectory SourceDirectory="$(PublishFolder)" DestinationFile="$(PublishFolder)\..\$(TargetName).zip" Overwrite="$(PublishZipOverwrite)" />
 
   </Target>
 
