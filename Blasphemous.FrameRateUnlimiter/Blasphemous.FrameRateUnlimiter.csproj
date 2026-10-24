@@ -8,14 +8,14 @@
     <Product>Frame Rate Unlimiter</Product>
     <Authors>NewbieElton</Authors>
     <Company>NewbieElton</Company>
-    <Description>A mod for Blasphemous 1</Description>
-    <Version>0.1.0</Version>
+    <Description>Enables frame rate customization (fixed/variable FPS)</Description>
+    <Version>1.0.0</Version>
 
     <TargetName>FrameRateUnlimiter</TargetName>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <DocumentationFile>bin\$(Configuration)\$(TargetName).xml</DocumentationFile>
-    <RepositoryUrl>https://github.com/Example</RepositoryUrl>
+    <RepositoryUrl>https://github.com/EltonZhang777/Blasphemous.FrameRateUnlimiter</RepositoryUrl>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <PortableSystemValueTupleVersion>1.0.1</PortableSystemValueTupleVersion>
   </PropertyGroup>
