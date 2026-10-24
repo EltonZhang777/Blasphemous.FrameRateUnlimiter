@@ -4,7 +4,7 @@ name: Build
 on:
   push:
     tags: [ "**" ]
-    branches: [ "main" ]
+    branches: [ "main", "test-ci" ]
 
 jobs:
   build:
@@ -16,6 +16,18 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Check whether tag commit is on main
+      id: tag_target
+      if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        if git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+          echo "on_main=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "on_main=false" >> "$GITHUB_OUTPUT"
+        fi
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -23,7 +35,7 @@ jobs:
         dotnet-version: 8.0.x
 
     - name: Validate SemVer Tag
-      if: startsWith(github.ref, 'refs/tags/')
+      if: startsWith(github.ref, 'refs/tags/') && steps.tag_target.outputs.on_main == 'true'
       env:
         TAG_NAME: ${{ github.ref_name }}
       run: |
@@ -39,18 +51,20 @@ jobs:
         echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> "$GITHUB_ENV"
 
     - name: Build Project
+      env:
+        IS_MAIN_TAG: ${{ steps.tag_target.outputs.on_main }}
       run: |
         dotnet restore
-        if [[ "${GITHUB_REF_TYPE:-branch}" == "tag" ]]; then
+        if [[ "$IS_MAIN_TAG" == "true" ]]; then
           dotnet build --configuration Release --no-restore -p:Version="$PACKAGE_VERSION"
         else
-          dotnet build --configuration Release --no-restore
+          dotnet build --configuration Release --no-restore -p:GeneratePackageOnBuild=false
         fi
 
     - name: Prepare Release Assets
-      if: startsWith(github.ref, 'refs/tags/')
+      if: startsWith(github.ref, 'refs/tags/') && steps.tag_target.outputs.on_main == 'true'
       run: |
-        PROJECT_FILE="$(find . -type f -name '*.csproj' -print -quit)"
+        PROJECT_FILE="Blasphemous.FrameRateUnlimiter/Blasphemous.FrameRateUnlimiter.csproj"
         if [[ -z "$PROJECT_FILE" ]]; then
           echo "Error: No project file was found"
           exit 1
@@ -83,7 +97,7 @@ jobs:
         } >> "$GITHUB_ENV"
 
     - name: Create Release
-      if: startsWith(github.ref, 'refs/tags/')
+      if: startsWith(github.ref, 'refs/tags/') && steps.tag_target.outputs.on_main == 'true'
       id: create_release
       uses: actions/create-release@v1
       env:
@@ -94,7 +108,7 @@ jobs:
         draft: true
 
     - name: Upload Release ZIP
-      if: startsWith(github.ref, 'refs/tags/')
+      if: startsWith(github.ref, 'refs/tags/') && steps.tag_target.outputs.on_main == 'true'
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -105,7 +119,7 @@ jobs:
         asset_content_type: application/zip
 
     - name: Upload Release Package
-      if: startsWith(github.ref, 'refs/tags/')
+      if: startsWith(github.ref, 'refs/tags/') && steps.tag_target.outputs.on_main == 'true'
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -116,7 +130,7 @@ jobs:
         asset_content_type: application/octet-stream
 
     - name: Publish NuGet Package
-      if: startsWith(github.ref, 'refs/tags/')
+      if: startsWith(github.ref, 'refs/tags/') && steps.tag_target.outputs.on_main == 'true'
       env:
         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
       run: dotnet nuget push "$PACKAGE_FILE" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json
