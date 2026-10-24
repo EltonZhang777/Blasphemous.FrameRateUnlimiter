@@ -15,7 +15,7 @@ public sealed class FrameRatePolicyTests
         Assert.Equal(30, config.LowFrameRate);
         Assert.Equal(120, config.HighFrameRate);
 
-        var result = Resolve(config, Array.Empty<float>(), 0);
+        var result = Resolve(config, [], 0);
 
         Assert.Equal(60, result.TargetFrameRate);
         Assert.Null(result.Warning);
@@ -29,7 +29,7 @@ public sealed class FrameRatePolicyTests
     {
         var result = Resolve(
             new FrameRateConfig { TargetFrameRate = targetFrameRate },
-            new[] { 12f, 60f, 240f },
+            [12f, 60f, 240f],
             1);
 
         Assert.Equal(targetFrameRate, result.TargetFrameRate);
@@ -50,7 +50,7 @@ public sealed class FrameRatePolicyTests
 
         foreach (var config in invalidConfigurations)
         {
-            var result = Resolve(config, Array.Empty<float>(), 0);
+            var result = Resolve(config, [], 0);
 
             Assert.Equal(60, result.TargetFrameRate);
             Assert.False(string.IsNullOrWhiteSpace(result.Warning));
@@ -88,7 +88,7 @@ public sealed class FrameRatePolicyTests
             HighFrameRate = highFrameRate,
         };
 
-        var result = policy.Resolve(config, Array.Empty<float>(), 0);
+        var result = policy.Resolve(config, [], 0);
 
         Assert.Equal(highFrameRate, result.TargetFrameRate);
         Assert.Null(result.Warning);
@@ -105,7 +105,7 @@ public sealed class FrameRatePolicyTests
             HighFrameRate = 30,
         };
 
-        var result = policy.Resolve(config, Array.Empty<float>(), 0);
+        var result = policy.Resolve(config, [], 0);
 
         Assert.Equal(30, config.LowFrameRate);
         Assert.Equal(90, config.HighFrameRate);
@@ -120,13 +120,13 @@ public sealed class FrameRatePolicyTests
         var policy = new FrameRatePolicyState();
         var config = new FrameRateConfig { Mode = "Variable", LowFrameRate = 20, HighFrameRate = 50 };
 
-        var result = policy.Resolve(config, new[] { 44f }, 0);
+        var result = policy.Resolve(config, [44f], 0);
         Assert.Equal(45, result.TargetFrameRate);
 
-        result = policy.Resolve(config, new[] { 45f }, 0);
+        result = policy.Resolve(config, [45f], 0);
         Assert.Equal(50, result.TargetFrameRate);
 
-        result = policy.Resolve(config, new[] { 44f }, 0);
+        result = policy.Resolve(config, [44f], 0);
 
         Assert.Equal(45, result.TargetFrameRate);
         Assert.Null(result.Warning);
@@ -137,7 +137,7 @@ public sealed class FrameRatePolicyTests
     {
         var policy = new FrameRatePolicyState();
         var config = new FrameRateConfig { Mode = "Variable", LowFrameRate = 20, HighFrameRate = 40 };
-        var result = policy.Resolve(config, new[] { 35f }, 0);
+        var result = policy.Resolve(config, [35f], 0);
 
         Assert.Equal(35, result.TargetFrameRate);
         Assert.Null(result.Warning);
@@ -149,13 +149,13 @@ public sealed class FrameRatePolicyTests
         var policy = new FrameRatePolicyState();
         var config = new FrameRateConfig { Mode = "Variable", LowFrameRate = 20, HighFrameRate = 22 };
 
-        var result = policy.Resolve(config, new[] { 17f }, 0);
+        var result = policy.Resolve(config, [17f], 0);
         Assert.Equal(20, result.TargetFrameRate);
 
-        result = policy.Resolve(config, new[] { 20f }, 0);
+        result = policy.Resolve(config, [20f], 0);
         Assert.Equal(22, result.TargetFrameRate);
 
-        result = policy.Resolve(config, new[] { 22f }, 0);
+        result = policy.Resolve(config, [22f], 0);
 
         Assert.Equal(22, result.TargetFrameRate);
         Assert.InRange(result.TargetFrameRate, config.LowFrameRate, config.HighFrameRate);
@@ -172,10 +172,10 @@ public sealed class FrameRatePolicyTests
             HighFrameRate = int.MaxValue,
         };
 
-        var result = policy.Resolve(config, new[] { 0f }, 0);
+        var result = policy.Resolve(config, [0f], 0);
         Assert.Equal(int.MaxValue - 5, result.TargetFrameRate);
 
-        result = policy.Resolve(config, new[] { float.MaxValue }, 0);
+        result = policy.Resolve(config, [float.MaxValue], 0);
 
         Assert.Equal(int.MaxValue, result.TargetFrameRate);
     }
@@ -185,13 +185,13 @@ public sealed class FrameRatePolicyTests
     {
         var policy = new FrameRatePolicyState();
         var config = new FrameRateConfig { Mode = "Variable", LowFrameRate = 20, HighFrameRate = 40 };
-        var result = policy.Resolve(config, new[] { 35f }, 0);
+        var result = policy.Resolve(config, [35f], 0);
         Assert.Equal(35, result.TargetFrameRate);
 
-        result = policy.Resolve(config, new[] { 0f }, 1);
+        result = policy.Resolve(config, [0f], 1);
         Assert.Equal(35, result.TargetFrameRate);
 
-        result = policy.Resolve(config, new[] { 30f }, 0);
+        result = policy.Resolve(config, [30f], 0);
 
         Assert.Equal(30, result.TargetFrameRate);
     }

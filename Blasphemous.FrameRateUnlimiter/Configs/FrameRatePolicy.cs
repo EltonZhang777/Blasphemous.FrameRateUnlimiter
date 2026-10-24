@@ -64,9 +64,7 @@ internal sealed class FrameRatePolicyState
             var configurationWasNormalized = config.LowFrameRate > config.HighFrameRate;
             if (configurationWasNormalized)
             {
-                var lowFrameRate = config.LowFrameRate;
-                config.LowFrameRate = config.HighFrameRate;
-                config.HighFrameRate = lowFrameRate;
+                (config.HighFrameRate, config.LowFrameRate) = (config.LowFrameRate, config.HighFrameRate);
             }
 
             if (!_isVariableMode)
@@ -142,7 +140,7 @@ internal sealed class FrameRatePolicyState
 
         var averageFrameRate = _observationWindowFrames / _observationWindowDuration;
         ResetObservationWindow();
-        return Resolve(config, new[] { averageFrameRate }, vSyncCount);
+        return Resolve(config, [averageFrameRate], vSyncCount);
     }
 
     private void ResetAdaptiveState()

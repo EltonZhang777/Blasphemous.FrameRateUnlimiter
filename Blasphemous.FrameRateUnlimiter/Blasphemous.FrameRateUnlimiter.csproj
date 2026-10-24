@@ -17,11 +17,13 @@
     <DocumentationFile>bin\$(Configuration)\$(TargetName).xml</DocumentationFile>
     <RepositoryUrl>https://github.com/Example</RepositoryUrl>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <PortableSystemValueTupleVersion>1.0.1</PortableSystemValueTupleVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Blasphemous.GameLibs" Version="4.0.67" />
     <PackageReference Include="Blasphemous.ModdingAPI" Version="3.0.1" />
+    <PackageReference Include="Portable.System.ValueTuple" Version="$(PortableSystemValueTupleVersion)" />
   </ItemGroup>
 
   <Target Name="Development" AfterTargets="PostBuildEvent">
@@ -29,6 +31,7 @@
     <!-- Get plugin & resources -->
     <ItemGroup>
       <PluginDll Include="$(TargetPath)" />
+      <DataDlls Include="$(NuGetPackageRoot)portable.system.valuetuple/$(PortableSystemValueTupleVersion)/lib/net35/Portable.System.ValueTuple.dll" />
       <Resources Include="$(SolutionDir)\resources\**\*.*" />
     </ItemGroup>
 
@@ -49,11 +52,13 @@
     <!-- Export to dev folder -->
     <Copy SourceFiles="@(Resources)" DestinationFolder="$(DevFolder)\%(RecursiveDir)" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(PluginDll)" DestinationFolder="$(DevFolder)\plugins" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(DataDlls)" DestinationFolder="$(DevFolder)\data" SkipUnchangedFiles="true" />
 
     <!-- Export to publish folder -->
     <RemoveDir Directories="$(PublishFolder)" Condition="'$(PublishFolderWasSpecified)' != 'true'" />
     <Copy SourceFiles="@(Resources)" DestinationFolder="$(PublishFolder)\%(RecursiveDir)" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(PluginDll)" DestinationFolder="$(PublishFolder)\plugins" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(DataDlls)" DestinationFolder="$(PublishFolder)\data" SkipUnchangedFiles="true" />
     <ZipDirectory SourceDirectory="$(PublishFolder)" DestinationFile="$(PublishFolder)\..\$(TargetName).zip" Overwrite="$(PublishZipOverwrite)" />
 
   </Target>

@@ -1,6 +1,5 @@
-﻿using Blasphemous.ModdingAPI;
-
-using Blasphemous.FrameRateUnlimiter.Configs;
+﻿using Blasphemous.FrameRateUnlimiter.Configs;
+using Blasphemous.ModdingAPI;
 using UnityEngine;
 
 namespace Blasphemous.FrameRateUnlimiter;
